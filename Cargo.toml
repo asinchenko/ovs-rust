@@ -1,6 +1,11 @@
 [package]
 name = "ovs-rust"
 version = "0.1.0"
-authors = ["kamaboko123 <6112062+kamaboko123@users.noreply.github.com>"]
 
 [dependencies]
+rustc-serialize = "*"
+serde = "1.0"
+serde_json = "1.0"
+serde_derive = "1.0"
+uuid = { version = "0.7", features = ["v4"] }
+
