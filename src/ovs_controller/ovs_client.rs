@@ -1,4 +1,3 @@
-use serde::*;
 use serde_json::*;
 
 use crate::ovs_controller::ovs_bridge::*;
@@ -236,7 +235,7 @@ impl OvsClient{
                         "named-uuid",
                         interface_tmp_uuid
                     ],
-                    "tag" : vlan
+                    "tag" : vlan,
                 });
             },
             &OvsPortMode::Trunk(ref vlans)=>{
@@ -266,7 +265,7 @@ impl OvsClient{
                     "table" : "Interface",
                     "row": {
                         "name":port_name,
-                        "type":""
+                        "type":"internal"
                     }
                 },
                 {

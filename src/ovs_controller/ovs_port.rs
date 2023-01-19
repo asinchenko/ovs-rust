@@ -5,7 +5,7 @@ use serde::{Serialize, Deserialize};
 pub struct OvsPort{
     pub name : String,
     pub uuid : String,
-    pub mode : OvsPortMode
+    pub mode : OvsPortMode,
 }
 
 /// Open vSwitch Port Mode  
@@ -21,7 +21,7 @@ impl OvsPort{
         OvsPort{
             name: name.to_string(),
             uuid : uuid.to_string(),
-            mode : mode.clone()
+            mode : mode.clone(),
         }
     }
 }
