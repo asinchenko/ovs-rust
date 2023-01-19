@@ -4,7 +4,7 @@ use serde_json::*;
 #[test]
 fn test_ovs_core() {
     
-    let ovsc = ovs_client::OvsClient::new("127.0.0.1", 6632);
+    let ovsc = ovs_client::OvsClient::new("192.168.88.101", 6640);
     match ovsc{
         Err(e) => println!("{}", e),
         Ok(mut c)=>{
@@ -31,7 +31,7 @@ fn test_ovs_core() {
                 Err(e) => println!("{}", e)
             }
             
-            let add_result = c.add_port("test", "enp3s0", &ovs_port::OvsPortMode::Access(10));
+            let add_result = c.add_port("ovsbr-local", "test", &ovs_port::OvsPortMode::Access(10));
             match add_result{
                 Err(e) => {
                     println!("{}", e)

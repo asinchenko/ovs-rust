@@ -213,11 +213,11 @@ impl OvsClient{
                 )
             },
             Some(b) =>{
-                println!("{}", serde_json::to_string(&b).unwrap());
+                println!("Bridge is found: {}", serde_json::to_string(&b).unwrap());
                 for p in &b.ports{
-                    port_list.push(vec!("uuid".to_string(), b.uuid.clone()));
+                    port_list.push(vec!("uuid".to_string(), p.uuid.clone()));
                 }
-                println!("{}", serde_json::to_string(&port_list).unwrap());
+                println!("Port list UUID is: {}", serde_json::to_string(&port_list).unwrap());
                 b
             }
         };
@@ -299,7 +299,7 @@ impl OvsClient{
             "id":self.transaction_id
         });
         
-        println!("{}", query);
+        println!("{} QUERY QUERY QUERY", query);
         self._send(query)
     }
     

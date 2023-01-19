@@ -1,4 +1,4 @@
-pub mod ovs;
+pub mod ovs_test;
 pub mod ovs_client;
 pub mod ovs_bridge;
 pub mod ovs_port;
