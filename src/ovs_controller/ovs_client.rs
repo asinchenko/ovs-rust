@@ -1,9 +1,9 @@
-extern crate serde;
-extern crate serde_json;
+use serde::*;
+use serde_json::*;
 
-use ovs_bridge::*;
-use ovs_port::*;
-use ovs_error::*;
+use crate::ovs_controller::ovs_bridge::*;
+use crate::ovs_controller::ovs_port::*;
+use crate::ovs_controller::ovs_error::*;
 //use ovs_transaction::*;
 
 use std::net::TcpStream;
@@ -19,7 +19,7 @@ pub struct OvsClient{
 }
 
 
-fn u8v_to_string(v : Vec<u8>) -> Result<String, FromUtf8Error>{
+fn u8v_to_string(v : Vec<u8>) -> std::result::Result<String, FromUtf8Error>{
     String::from_utf8(v)
 }
 
@@ -33,7 +33,7 @@ impl Display for PortReq{
 }*/
 
 impl OvsClient{
-    pub fn new(host: &str, port:i16) -> Result<OvsClient, OvsError>{
+    pub fn new(host: &str, port:i16) -> std::result::Result<OvsClient, OvsError>{
         Ok(OvsClient{
             transaction_id : 0,
             target : format!("{}:{}", host, port)
@@ -51,7 +51,7 @@ impl OvsClient{
         }
     }
     
-    pub fn get_ports(&mut self) -> Result<Vec<OvsPort>, OvsError>{
+    pub fn get_ports(&mut self) -> std::result::Result<Vec<OvsPort>, OvsError>{
         let query = serde_json::from_str(
             "{\"method\": \"transact\",\"params\":[\"Open_vSwitch\",{\"op\":\"select\",\"table\":\"Port\",\"where\":[]}],\"id\":0}"
         ).unwrap();
@@ -117,7 +117,7 @@ impl OvsClient{
         Ok(ports)
     }
     
-    pub fn get_bridges(&mut self) -> Result<Vec<OvsBridge>, OvsError>{
+    pub fn get_bridges(&mut self) -> std::result::Result<Vec<OvsBridge>, OvsError>{
         let query = serde_json::from_str(
             "{\"method\": \"transact\",\"params\":[\"Open_vSwitch\",{\"op\":\"select\",\"table\":\"Bridge\",\"where\":[]}],\"id\":0}"
         ).unwrap();
@@ -184,7 +184,7 @@ impl OvsClient{
         None
     }
     
-    pub fn add_port(&mut self, bridge_name:&str, port_name: &str, port_mode: &OvsPortMode) -> Result<serde_json::Value, OvsError>{
+    pub fn add_port(&mut self, bridge_name:&str, port_name: &str, port_mode: &OvsPortMode) -> std::result::Result<serde_json::Value, OvsError>{
         let ports = self.get_ports()?;
         let bridges = self.get_bridges()?;
         
@@ -303,7 +303,7 @@ impl OvsClient{
         self._send(query)
     }
     
-    fn _send(&mut self, msg : serde_json::Value) -> Result<serde_json::Value, OvsError>{
+    fn _send(&mut self, msg : serde_json::Value) -> std::result::Result<serde_json::Value, OvsError>{
         self.transaction_id += 1;
         let mut socket = match TcpStream::connect(&self.target){
             Ok(con) => con,
@@ -327,7 +327,7 @@ impl OvsClient{
         
         let mut s : Vec<u8> = Vec::new();
         
-        let resp_str = try!(
+        let resp_str = 
             socket.read_to_end(&mut s)
             .map_err(
                 |_| OvsError::new(OvsErrorType::InvalidResponse, "Failed to read response data")
@@ -337,15 +337,13 @@ impl OvsClient{
                 .map_err(
                     |_| OvsError::new(OvsErrorType::InvalidResponse, "Failed to read response data")
                 )
-            )
-        );
+            )?;
         
-        let resp_json: serde_json::Value = try!(
+        let resp_json: serde_json::Value =
             serde_json::from_str(resp_str.as_str())
             .map_err(
                 |_| OvsError::new(OvsErrorType::InvalidResponseJson, "Faild to parse response data")
-            )
-        );
+            )?;
         
         match resp_json["result"][0].as_object(){
             None => {

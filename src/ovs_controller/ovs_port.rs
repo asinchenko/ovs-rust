@@ -1,4 +1,4 @@
-extern crate serde_json;
+use serde::{Serialize, Deserialize};
 
 /// Struct of abstructed Open vSwitch Port
 #[derive(Serialize, Deserialize, Debug, Clone)]

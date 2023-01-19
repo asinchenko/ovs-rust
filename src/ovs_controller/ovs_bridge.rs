@@ -1,6 +1,7 @@
-extern crate serde_json;
 
-use ovs_port::*;
+use serde::{Serialize, Deserialize};
+
+use crate::ovs_controller::ovs_port::OvsPort;
 
 /// Struct of abstructed Open vSwitch Bridge
 #[derive(Serialize, Deserialize, Debug, Clone)]
