@@ -1,12 +1,63 @@
 mod ovs_controller;
-use ovs_controller::{ovs_port, ovs_client};
-use rocket::http::Status;
-
+mod system_controller;
+#[macro_use]extern crate serde_json;
 #[macro_use] extern crate rocket;
+use system_controller::interfaces_api;
+use ovs_controller::{ovs_port, ovs_client};
+use rocket::http::{Status, Method, Header};
+use rocket::{Request, Response};
+use rocket::fairing::{Fairing, Info, Kind};
 
-#[get("/<name>")]
-fn index(name: &str) -> String {
-    format!("Hello {name}")
+pub struct CORS;
+
+#[rocket::async_trait]
+impl Fairing for CORS {
+    fn info(&self) -> Info {
+        Info {
+            name: "Add CORS headers to responses",
+            kind: Kind::Response
+        }
+    }
+
+    async fn on_response<'r>(&self, _request: &'r Request<'_>, response: &mut Response<'r>) {
+        response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
+        response.set_header(Header::new("Access-Control-Allow-Methods", "POST, GET, PATCH, OPTIONS"));
+        response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
+        response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
+    }
+}
+
+#[get("/interfaces")]
+fn interfaces() -> String {
+    let local_ifs = match interfaces_api::get_interfaces() {
+        Ok(interface_list) => interface_list,
+        Err(e) => {
+            return format!("Error: {}", e);
+        }
+    };
+    let interface_names: Vec<String> = local_ifs.iter().map(|itf| itf.name.to_string()).collect();
+    interface_names.join(",")
+}
+#[get("/interfaces_to_ip")]
+fn interfaces_to_ip() -> String {
+    let local_ifs = match interfaces_api::interfaces_to_ip() {
+        Ok(interface_list) => interface_list,
+        Err(e) => {
+            return format!("Error: {}", e);
+        }
+    };
+    local_ifs
+}
+#[get("/ips")]
+fn ips() -> String {
+    let local_ips = match interfaces_api::get_local_ips() {
+        Ok(ips) => ips,
+        Err(e) => {
+            return format!("Error: {}", e);
+        }
+    };
+    let ips_str: Vec<String> = local_ips.iter().map(|ip| format!("{}", ip)).collect();
+    ips_str.join(",")
 }
 
 #[post("/ovs/<bridge>/<port>/<mode>/<vlan>")]
@@ -37,5 +88,6 @@ async fn user_str(bridge: &str, port: &str, mode: &str, vlan: u16) -> Status {
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![index, user_str])
+        .mount("/", routes![user_str, ips, interfaces, interfaces_to_ip])
+        .attach(CORS)
 }

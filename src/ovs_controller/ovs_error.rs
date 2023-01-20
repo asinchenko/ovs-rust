@@ -13,7 +13,7 @@ pub enum OvsErrorType{
     InconsistentInstruction
 }
 
-/// struct of error in this library  
+/// struct of error in this library
 /// This struct is used as Result variant
 #[derive(Debug)]
 pub struct OvsError{

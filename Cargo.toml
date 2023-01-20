@@ -3,7 +3,21 @@ name = "ovs-rust"
 version = "0.1.0"
 edition = "2021"
 
+[development]
+address = "localhost"
+port = 8001
+
+[staging]
+address = "0.0.0.0"
+port = 8001
+
+[production]
+address = "0.0.0.0"
+port = 8001
+
 [dependencies]
+rocket_cors = "0.5.1"
+network-interface = "0.1.6"
 rustc-serialize = "*"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"

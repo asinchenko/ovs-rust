@@ -255,7 +255,7 @@ impl OvsClient{
             }
         }
         
-        let mut query = json!({
+        let query = json!({
             "method":"transact",
             "params":[
                 "Open_vSwitch",
@@ -297,8 +297,6 @@ impl OvsClient{
             ],
             "id":self.transaction_id
         });
-        
-        println!("{} QUERY QUERY QUERY", query);
         self._send(query)
     }
     
