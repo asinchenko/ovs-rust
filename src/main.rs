@@ -2,7 +2,8 @@ mod ovs_controller;
 mod system_controller;
 #[macro_use]extern crate serde_json;
 #[macro_use] extern crate rocket;
-use system_controller::interfaces_api;
+use system_controller::{interfaces_api, file_api};
+
 use ovs_controller::{ovs_port, ovs_client};
 use rocket::http::{Status, Method, Header};
 use rocket::{Request, Response};
@@ -85,9 +86,20 @@ async fn user_str(bridge: &str, port: &str, mode: &str, vlan: u16) -> Status {
     }
 }
 
+#[post("/announce")]
+fn announce() -> String {
+    let result =  match file_api::execute_script() {
+        Ok(file) => file,
+        Err(e) => {
+            return format!("Error: {}", e);
+        }
+    };
+    return result
+}
+
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![user_str, ips, interfaces, interfaces_to_ip])
+        .mount("/", routes![user_str, ips, interfaces, interfaces_to_ip, announce])
         .attach(CORS)
 }
